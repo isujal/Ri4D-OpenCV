@@ -10,6 +10,10 @@ public class BlueFarPath_Final {
 
     public Pose startPose = new Pose(55.750, 6.880, Math.toRadians(0)); // 144 - 88.250
 
+    public PathChain LEFT;
+    public PathChain CENTRE;
+    public PathChain RIGHT;
+
     public PathChain SHOOT0;
     public PathChain First2;
     public PathChain Corner;
@@ -40,7 +44,39 @@ public class BlueFarPath_Final {
     public PathChain Random_near_spike_toshoot;
     public PathChain LEAVE;
 
+
+
     public BlueFarPath_Final(Follower follower) {
+
+        LEFT = follower.pathBuilder()
+                .addPath(
+                        new BezierLine(
+                                new Pose(59.847, 20.277),
+                                new Pose(5.776, 13.047)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                .build();
+
+        CENTRE = follower.pathBuilder()
+                .addPath(
+                        new BezierLine(
+                                new Pose(59.847, 20.270),
+                                new Pose(5.588, 29.541)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                .build();
+
+        RIGHT = follower.pathBuilder()
+                .addPath(
+                        new BezierLine(
+                                new Pose(59.840, 20.270),
+                                new Pose(5.624, 47.271)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                .build();
 
         SHOOT0 = follower.pathBuilder().addPath(
                 new BezierLine(

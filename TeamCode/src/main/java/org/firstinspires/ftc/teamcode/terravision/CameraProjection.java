@@ -8,7 +8,7 @@ public class CameraProjection {
     static double cy = 421.638;
 
     static double cameraHeight = 27.5; // cm
-    static double tilt = Math.toRadians(12);
+    static double tilt = Math.toRadians(12); // angle from the vertical axis
 
     public static double[] pixelToGround(double u, double v){
 

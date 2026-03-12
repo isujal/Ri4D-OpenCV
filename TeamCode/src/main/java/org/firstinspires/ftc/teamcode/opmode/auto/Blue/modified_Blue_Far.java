@@ -14,6 +14,7 @@ import static org.firstinspires.ftc.teamcode.sequences.sequence.shootingSeq;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.arcrobotics.ftclib.command.CommandScheduler;
+import com.arcrobotics.ftclib.command.ConditionalCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.controller.PIDFController;
@@ -25,6 +26,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.commandbase.InstandCommands.WaitForSensorCommand;
 import org.firstinspires.ftc.teamcode.commandbase.Trajectorycommands.KPathCommand2;
+import org.firstinspires.ftc.teamcode.commandbase.VisionRegionCommand;
 import org.firstinspires.ftc.teamcode.hardware.Globals;
 import org.firstinspires.ftc.teamcode.hardware.RobotHardware;
 import org.firstinspires.ftc.teamcode.paths.FAR.BlueFarPath_Final;
@@ -33,6 +35,7 @@ import org.firstinspires.ftc.teamcode.sequences.sequence;
 import org.firstinspires.ftc.teamcode.subsystem.endgamesubsystem;
 import org.firstinspires.ftc.teamcode.subsystem.intaksubsystem;
 import org.firstinspires.ftc.teamcode.subsystem.shootersubsystem;
+import org.firstinspires.ftc.teamcode.terravision.Vision2;
 
 import java.util.List;
 
@@ -42,21 +45,21 @@ import java.util.List;
 public class modified_Blue_Far extends LinearOpMode {
 
     public Follower follower;
-
     private PIDFController pidf;
     public static double flykP = Globals.flykP;
     public static double flykI = Globals.flykI;
     public static double flykD = Globals.flykD;
     public static double flykF = Globals.flykF;
-    public Pose startPose;
 
+    public Pose startPose;
 
     intaksubsystem intake;
     shootersubsystem shooter;
     endgamesubsystem endgame;
 
 
-
+    Vision2 vision = new Vision2();
+    VisionRegionCommand detectCommand = new VisionRegionCommand(vision);
     private final RobotHardware robot = RobotHardware.getInstance();
 
     private BlueFarPath_Final farPath; // Paths defined in the Paths class
@@ -65,13 +68,6 @@ public class modified_Blue_Far extends LinearOpMode {
     List<LynxModule> allHubs = null;
 
     public SequentialCommandGroup autoSeq;
-
-
-
-
-
-
-
 
     public  SequentialCommandGroup waitForShoot(){
         return  new SequentialCommandGroup(
@@ -83,6 +79,23 @@ public class modified_Blue_Far extends LinearOpMode {
         );//                new WaitForSensorCommand(
     }
 
+
+    public SequentialCommandGroup waitForVision(){
+        return new SequentialCommandGroup(
+
+                detectCommand,
+
+                new ConditionalCommand(
+                        new KPathCommand2(follower,farPath.LEFT),
+                        new ConditionalCommand(
+                                new KPathCommand2(follower, farPath.CENTRE),
+                                new KPathCommand2(follower, farPath.RIGHT),
+                                () -> detectCommand.getRegion() == 1
+                        ),
+                        () -> detectCommand.getRegion() == 0
+                )
+        );
+    }
 
 
 
@@ -205,8 +218,8 @@ public class modified_Blue_Far extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-
         robot.init(hardwareMap,new Pose2d(0,0,0));
+        vision.init(hardwareMap);
         intake = new intaksubsystem(robot);
         shooter = new shootersubsystem(robot);
         endgame = new endgamesubsystem(robot);
@@ -262,6 +275,7 @@ public class modified_Blue_Far extends LinearOpMode {
             telemetry.addData("finished", finished);
             telemetry.addData("left velo", robot.shootLeft.getVelocity());
             telemetry.addData("pidf", pidf.getCoefficients());
+            telemetry.addData("Detected Region", detectCommand.getRegion());
 
             telemetry.update();
             follower.update();
