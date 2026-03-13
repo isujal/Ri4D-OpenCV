@@ -17,6 +17,10 @@ public class RedFarPath_Final {
     // 131,8.11
     public static Pose startPose = new Pose(88.250, 6.880, Math.toRadians(0));
 
+    public PathChain LEFT;
+    public PathChain CENTRE;
+    public PathChain RIGHT;
+
     public PathChain SHOOT0;
     public PathChain First2;
     public PathChain Corner;
@@ -65,6 +69,38 @@ public class RedFarPath_Final {
     }
 
     public RedFarPath_Final(Follower follower) {
+
+
+        RIGHT = follower.pathBuilder()
+                .addPath(
+                        new BezierLine(
+                                new Pose(85, 16.606),
+                                new Pose(141.0, 13.6)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                .build();
+
+        CENTRE = follower.pathBuilder()
+                .addPath(
+                        new BezierCurve(
+                                new Pose(85, 16.606),
+                                new Pose(140.2, 28.4)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                .build();
+
+        LEFT = follower.pathBuilder()
+                .addPath(
+                        new BezierLine(
+                                new Pose(85, 16.606),
+                                new Pose(139.4, 48.8)
+                        )
+                )
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                .build();
+
 
         SHOOT0 = follower.pathBuilder().addPath(
                         new BezierLine(

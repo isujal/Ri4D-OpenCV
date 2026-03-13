@@ -8,12 +8,18 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.terravision.Vision;
 import org.firstinspires.ftc.teamcode.commandbase.VisionRegionCommand;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
 
 @TeleOp(group = "A-Vision",name = "Vision Region Debug CB")
 public class VisionRegionDebugTeleOp extends OpMode {
 
     Vision2 vision;
     VisionRegionCommand visionCommand;
+
+
+
 
     @Override
     public void init() {
@@ -26,6 +32,9 @@ public class VisionRegionDebugTeleOp extends OpMode {
         CommandScheduler.getInstance().schedule(visionCommand);
     }
 
+
+
+
     @Override
     public void loop() {
 
@@ -33,6 +42,10 @@ public class VisionRegionDebugTeleOp extends OpMode {
         CommandScheduler.getInstance().schedule(visionCommand);
 
         int region = visionCommand.getRegion();
+
+
+
+
 
 
         visionCommand.execute();

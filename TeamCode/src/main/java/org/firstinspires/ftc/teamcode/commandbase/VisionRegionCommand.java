@@ -9,7 +9,8 @@ public class VisionRegionCommand extends CommandBase {
 
     Vision2 vision;
     int region = -1;
-
+    private int updateCount = 0;
+    private static final int MAX_UPDATES = 60;
     public VisionRegionCommand(Vision2 vision){
         this.vision = vision;
     }
@@ -23,11 +24,18 @@ public class VisionRegionCommand extends CommandBase {
     public void execute(){
         vision.update();
         region = vision.getRegion();
-    }
+        updateCount++;
 
+    }
     @Override
-    public boolean isFinished(){
-        return region != -1;
+    public boolean isFinished() {
+        // Commit if region found, OR force-exit after timeout (default to CENTER)
+        if (region != -1) return true;
+        if (updateCount >= MAX_UPDATES) {
+            region = 1; // default CENTER if vision never commits
+            return true;
+        }
+        return false;
     }
 
     public int getRegion(){
