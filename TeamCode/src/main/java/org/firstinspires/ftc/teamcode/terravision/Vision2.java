@@ -99,18 +99,7 @@ public class Vision2 {
             region = 2;
         }
 
-        telemetry.addLine("----- REGION AREA -----");
-        telemetry.addData("Left Area", leftArea);
-        telemetry.addData("Center Area", centerArea);
-        telemetry.addData("Right Area", rightArea);
 
-        telemetry.addLine("----- TARGET REGION -----");
-
-        if(region == 0) telemetry.addLine("LEFT");
-        if(region == 1) telemetry.addLine("CENTER");
-        if(region == 2) telemetry.addLine("RIGHT");
-
-        telemetry.update();
     }
 
     private void processBlobs(List<Blob> blobs){

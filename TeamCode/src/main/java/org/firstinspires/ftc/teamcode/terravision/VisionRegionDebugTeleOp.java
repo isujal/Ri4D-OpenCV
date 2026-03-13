@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.terravision;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -28,8 +30,26 @@ public class VisionRegionDebugTeleOp extends OpMode {
     public void loop() {
 
         CommandScheduler.getInstance().run();
+        CommandScheduler.getInstance().schedule(visionCommand);
 
         int region = visionCommand.getRegion();
+
+
+        visionCommand.execute();
+        vision.update();
+
+//        telemetry.addLine("----- REGION AREA -----");
+//        telemetry.addData("Left Area", leftArea);
+//        telemetry.addData("Center Area", centerArea);
+//        telemetry.addData("Right Area", rightArea);
+//
+//        telemetry.addLine("----- TARGET REGION -----");
+//
+//        if(region == 0) telemetry.addLine("LEFT");
+//        if(region == 1) telemetry.addLine("CENTER");
+//        if(region == 2) telemetry.addLine("RIGHT");
+
+//        telemetry.update();
 
         telemetry.addLine("---- VISION DEBUG ----");
 

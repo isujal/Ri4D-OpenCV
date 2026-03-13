@@ -104,6 +104,9 @@ public class modified_red_Near extends LinearOpMode {
 
 
 
+
+
+
                         /// 2nd stack Next cycle
                         sequence.noGateCycle(intake,shooter,
                                 follower,

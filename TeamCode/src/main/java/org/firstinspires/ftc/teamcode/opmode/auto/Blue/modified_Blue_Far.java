@@ -117,101 +117,102 @@ public class modified_Blue_Far extends LinearOpMode {
                         /// wait for third shoot
 
 
+                        waitForVision()
 
-                        /// 2nd stack Next cycle
-                        sequence.noGateCycle(intake,shooter,
-                                follower,
-                                robot,
-                                farPath.SPIKE3,
-                                farPath.SHOOT3,
-                                2.5,
-                                2.5,
-                                "blue"),
-                        /// 1-123 shoot
-                        new WaitCommand(10),
-                        new WaitForSensorCommand(()->finished,2000),
-                        shootingSeq(intake,shooter),
-                        /// check is ramp empty or not
-                        waitForShoot(),
-                        /// wait for 3rd shoot
-
-
-                        /// 2nd stack Next cycle
-                        sequence.cornerpick(intake,shooter,
-                                follower,
-                                robot,
-                                farPath.First2,
-                                farPath.Corner,
-                                farPath.CornerShoot,
-                                2.5,
-                                1.8,
-                                2.5,
-                                "blue"),
-                        /// 1-123 shoot
-                        new WaitCommand(10),
-                        new WaitForSensorCommand(()->finished,2000),
-                        shootingSeq(intake,shooter),
-                        /// check is ramp empty or not
-                        waitForShoot(),
-                        /// wait for 3rd shoot
-
-
-                        /// Blind shot
-                        sequence.blindShot(intake,shooter,
-                                follower,
-                                robot,
-                                farPath.Random_StraightCorner,
-                                farPath.Random_StraightCorner_toshoot,
-                                2.5,
-                                2.5,
-                                "blue"),
-                        /// 1-123 shoot
-                        new WaitCommand(10),
-                        new WaitForSensorCommand(()->finished,2000),
-                        shootingSeq(intake,shooter),
-                        /// check is ramp empty or not
-                        waitForShoot(),
-                        /// wait for 3rd shoot
-
-
-                        /// Blind shot 2
-                        sequence.blindShot(intake,shooter,
-                                follower,
-                                robot,
-                                farPath.Random_StraightCorner_extra_push,
-                                farPath.Random_StraightCorner_extra_push_toshoot,
-                                2.5,
-                                2.5,
-                                "blue"),
-                        /// 1-123 shoot
-                        new WaitCommand(10),
-                        new WaitForSensorCommand(()->finished,2000),
-                        shootingSeq(intake,shooter),
-                        /// check is ramp empty or not
-                        waitForShoot(),
-                        /// wait for 3rd shoot
-
-
-                        /// Blind shot 3
-                        sequence.blindShot(intake,shooter,
-                                follower,
-                                robot,
-                                farPath.Random_near_spike,
-                                farPath.Random_near_spike_toshoot,
-                                2.5,
-                                2.5,
-                                "blue"),
-                        /// 1-123 shoot
-                        new WaitCommand(10),
-                        new WaitForSensorCommand(()->finished,2000),
-                        shootingSeq(intake,shooter),
-                        /// check is ramp empty or not
-                        waitForShoot(),
-                        /// wait for 3rd shoot
-                        new WaitCommand(10),
-
-                        new KPathCommand2(follower, farPath.LEAVE, 2)
-                        
+//                        /// 2nd stack Next cycle
+//                        sequence.noGateCycle(intake,shooter,
+//                                follower,
+//                                robot,
+//                                farPath.SPIKE3,
+//                                farPath.SHOOT3,
+//                                2.5,
+//                                2.5,
+//                                "blue"),
+//                        /// 1-123 shoot
+//                        new WaitCommand(10),
+//                        new WaitForSensorCommand(()->finished,2000),
+//                        shootingSeq(intake,shooter),
+//                        /// check is ramp empty or not
+//                        waitForShoot(),
+//                        /// wait for 3rd shoot
+//
+//
+//                        /// 2nd stack Next cycle
+//                        sequence.cornerpick(intake,shooter,
+//                                follower,
+//                                robot,
+//                                farPath.First2,
+//                                farPath.Corner,
+//                                farPath.CornerShoot,
+//                                2.5,
+//                                1.8,
+//                                2.5,
+//                                "blue"),
+//                        /// 1-123 shoot
+//                        new WaitCommand(10),
+//                        new WaitForSensorCommand(()->finished,2000),
+//                        shootingSeq(intake,shooter),
+//                        /// check is ramp empty or not
+//                        waitForShoot(),
+//                        /// wait for 3rd shoot
+//
+//
+//                        /// Blind shot
+//                        sequence.blindShot(intake,shooter,
+//                                follower,
+//                                robot,
+//                                farPath.Random_StraightCorner,
+//                                farPath.Random_StraightCorner_toshoot,
+//                                2.5,
+//                                2.5,
+//                                "blue"),
+//                        /// 1-123 shoot
+//                        new WaitCommand(10),
+//                        new WaitForSensorCommand(()->finished,2000),
+//                        shootingSeq(intake,shooter),
+//                        /// check is ramp empty or not
+//                        waitForShoot(),
+//                        /// wait for 3rd shoot
+//
+//
+//                        /// Blind shot 2
+//                        sequence.blindShot(intake,shooter,
+//                                follower,
+//                                robot,
+//                                farPath.Random_StraightCorner_extra_push,
+//                                farPath.Random_StraightCorner_extra_push_toshoot,
+//                                2.5,
+//                                2.5,
+//                                "blue"),
+//                        /// 1-123 shoot
+//                        new WaitCommand(10),
+//                        new WaitForSensorCommand(()->finished,2000),
+//                        shootingSeq(intake,shooter),
+//                        /// check is ramp empty or not
+//                        waitForShoot(),
+//                        /// wait for 3rd shoot
+//
+//
+//                        /// Blind shot 3
+//                        sequence.blindShot(intake,shooter,
+//                                follower,
+//                                robot,
+//                                farPath.Random_near_spike,
+//                                farPath.Random_near_spike_toshoot,
+//                                2.5,
+//                                2.5,
+//                                "blue"),
+//                        /// 1-123 shoot
+//                        new WaitCommand(10),
+//                        new WaitForSensorCommand(()->finished,2000),
+//                        shootingSeq(intake,shooter),
+//                        /// check is ramp empty or not
+//                        waitForShoot(),
+//                        /// wait for 3rd shoot
+//                        new WaitCommand(10),
+//
+//                        new KPathCommand2(follower, farPath.LEAVE, 2)
+//
                         );
     }
 
@@ -270,6 +271,8 @@ public class modified_Blue_Far extends LinearOpMode {
                     (int)robot.shootLeft.getVelocity(),
                     targetflyVelocity,
                     20);
+
+
 
 
             telemetry.addData("finished", finished);
