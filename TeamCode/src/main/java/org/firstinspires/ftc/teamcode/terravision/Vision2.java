@@ -148,17 +148,11 @@ import android.graphics.Color;
 import android.util.Size;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.opencv.Circle;
 import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
 import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor.Blob;
 import org.firstinspires.ftc.vision.opencv.ColorRange;
-import org.opencv.imgproc.Imgproc;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import org.firstinspires.ftc.vision.VisionProcessor;
-import org.opencv.core.Mat;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -202,17 +196,16 @@ import java.util.List;
 @Config
 public class Vision2 {
 
-    // ── Camera / Portal ──────────────────────────────────────────────────────
     WebcamName camera;
     VisionPortal portal;
 
-    // ── Frame geometry ───────────────────────────────────────────────────────
+    // ── Frame geometry ──────
     final int IMAGE_WIDTH = 1280;
     final int IMAGE_HEIGHT = 720;
     final int LEFT_BOUND = IMAGE_WIDTH / 3;        // 427 px
     final int CENTER_BOUND = 2 * IMAGE_WIDTH / 3;    // 853 px
 
-    // ── Morphology tuning ────────────────────────────────────────────────────
+    // ── Morphology tuning ────
     public static int purple_erode = 15;
     public static int purple_dilate = 15;
     public static int green_erode = 15;
@@ -221,48 +214,17 @@ public class Vision2 {
     public static int green_blur = 5;
 
     // ── Scoring constants ─────────────────────────────────────────────────────
-
-    /**
-     * Blobs below this area (px²) are noise — ignored entirely
-     */
-    private static final double MIN_AREA = 500.0;
-
-    /**
-     * Blobs above this area are likely two touching balls → vote x2
-     */
+    private static final double MIN_AREA = 500.0; // noisy blobs reduction
     private static final double DOUBLE_BALL_AREA = 8000.0;
     private static final double DOUBLE_BALL_MULTIPLIER = 2.0;
-
-    /**
-     * PROXIMITY BOOST constants (Layer 3).
-     * Score = clamp(PROXIMITY_REF_DIST / groundDistCm, MIN, MAX)
-     * A ball at REF_DIST scores exactly 1.0.
-     */
     private static final double PROXIMITY_REF_DIST = 50.0; // cm
-    private static final double PROXIMITY_MIN = 0.5;
-    private static final double PROXIMITY_MAX = 2.0;
-
-    /**
-     * CROSS-CHANNEL BONUS (Layer 5).
-     * Applied when a region has votes from both purple and green.
-     * 1.3 = 30% bonus. Set to 1.0 to disable.
-     */
+    private static final double PROXIMITY_MIN = 0.25; //0.5
+    private static final double PROXIMITY_MAX = 1.3; //2.0
     private static final double CROSS_CHANNEL_BOOST = 1.3;
+    private static final double SCORE_TIE_THRESHOLD = 0.25; //0.15
+    private static final int CONFIRM_FRAMES = 5; //3
 
-    /**
-     * Tie-break threshold.
-     * If top two scores differ by less than this fraction, use X-variance.
-     */
-    private static final double SCORE_TIE_THRESHOLD = 0.15;
-
-    /**
-     * Temporal confirmation.
-     * Region must win for this many consecutive frames to become official.
-     * Set to 1 to disable (immediate commit).
-     */
-    private static final int CONFIRM_FRAMES = 3;
-
-    // ── Per-frame accumulators ────────────────────────────────────────────────
+    // ── Per-frame accumulators ──────
     private double[] purpleScore = new double[3];  // channel-separated for Layer 5
     private double[] greenScore = new double[3];
     private double[] regionScore = new double[3];  // final combined score
@@ -274,15 +236,14 @@ public class Vision2 {
             new ArrayList<>(),
             new ArrayList<>()
     };
-    // ── Temporal smoothing state ──────────────────────────────────────────────
+    // ── Temporal smoothing state ─────
     private int pendingRegion = -1;
     private int pendingStreak = 0;
     private int region = -1;
 
-    // ── Debug fields (readable from TeleOp for tuning) ────────────────────────
     public boolean[] debugCrossChannelApplied = new boolean[3];
 
-    // ── Blob processors ───────────────────────────────────────────────────────
+    // ── Blob processors ────
     ColorBlobLocatorProcessor purpleLocator =
             new ColorBlobLocatorProcessor.Builder()
                     .setTargetColorRange(ColorRange.ARTIFACT_PURPLE)
@@ -308,7 +269,7 @@ public class Vision2 {
                     .build();
 
 
-    // ── Init ──────────────────────────────────────────────────────────────────
+    // ── Init ──────
     public void init(HardwareMap hardwareMap) {
         camera = hardwareMap.get(WebcamName.class, "Webcam 1");
         portal = new VisionPortal.Builder()
@@ -321,7 +282,6 @@ public class Vision2 {
     }
 
 
-    // ── Main update — called every loop iteration ─────────────────────────────
     public void update() {
 
         // Reset
@@ -332,11 +292,9 @@ public class Vision2 {
             debugCrossChannelApplied[i] = false;
         }
 
-        // Layers 1-4: score each colour channel independently
         processBlobs(purpleLocator.getBlobs(), purpleScore);
         processBlobs(greenLocator.getBlobs(), greenScore);
 
-        // Layer 5: merge with cross-channel bonus
         for (int i = 0; i < 3; i++) {
             double combined = purpleScore[i] + greenScore[i];
             if (purpleScore[i] > 0 && greenScore[i] > 0) {
@@ -346,7 +304,6 @@ public class Vision2 {
             regionScore[i] = combined;
         }
 
-        // Find best and second-best
         int best = 0, second = 1;
         for (int i = 1; i < 3; i++) {
             if (regionScore[i] > regionScore[best]) {
@@ -368,10 +325,8 @@ public class Vision2 {
 
         // Temporal smoothing
         if (autoMode) {
-            // In auto: commit immediately, no streak required
             region = winner;
         } else {
-            // In teleop/debug: require CONFIRM_FRAMES for stability
             if (winner == pendingRegion) pendingStreak++;
             else {
                 pendingRegion = winner;
@@ -381,7 +336,6 @@ public class Vision2 {
         }
     }
 
-    // ── Score one colour channel's blobs (Layers 1-4) ────────────────────────
     private void processBlobs(List<Blob> blobs, double[] scores) {
 
         for (Blob blob : blobs) {
@@ -394,20 +348,13 @@ public class Vision2 {
 
             if (area < MIN_AREA) continue;
 
-            // Layer 1: circularity — suppresses jagged noise blobs
             double circularity = Math.max(0.1, blob.getDensity());
 
-            // Layer 2: size multiplier — two touching balls fused into one blob
             double sizeMultiplier = (area > DOUBLE_BALL_AREA) ? DOUBLE_BALL_MULTIPLIER : 1.0;
 
-            // Layer 3: proximity boost — closer balls score higher
             double proximityWeight = computeProximityWeight(bx, by);
 
-            // Final vote weight for this blob
             double voteWeight = circularity * sizeMultiplier * proximityWeight;
-
-            // Layer 4: boundary split vote
-            // How much of the ball's diameter falls in each region?
             double blobLeft = bx - radius;
             double blobRight = bx + radius;
             double diameter = 2.0 * radius;
@@ -419,23 +366,16 @@ public class Vision2 {
             double fTotal = f0 + f1 + f2;
             if (fTotal < 1e-6) continue;
 
-            // Distribute vote proportionally across regions
             scores[0] += voteWeight * (f0 / fTotal);
             scores[1] += voteWeight * (f1 / fTotal);
             scores[2] += voteWeight * (f2 / fTotal);
 
-            // Primary region (centroid) for tiebreaker + count
             int primary = (bx < LEFT_BOUND) ? 0 : (bx < CENTER_BOUND) ? 1 : 2;
             regionCentroidsX[primary].add(bx);
             regionCount[primary] += (int) sizeMultiplier;
         }
     }
 
-    /**
-     * Layer 3 implementation.
-     * Converts blob pixel position to real ground distance via CameraProjection,
-     * then returns a proximity weight: closer = higher score.
-     */
     private double computeProximityWeight(double pixelX, double pixelY) {
         try {
             double[] ground = CameraProjection.pixelToGround(pixelX, pixelY);
@@ -448,11 +388,6 @@ public class Vision2 {
         }
     }
 
-    /**
-     * Layer 4 helper.
-     * Returns what fraction of [blobLeft, blobRight] overlaps [regionLeft, regionRight],
-     * normalised by the blob's full diameter.
-     */
     private double overlapFraction(double blobLeft, double blobRight,
                                    double regionLeft, double regionRight,
                                    double diameter) {
@@ -460,10 +395,6 @@ public class Vision2 {
         return overlap / diameter;
     }
 
-    /**
-     * X-variance of a centroid list. Lower = tighter cluster.
-     * Used as tiebreaker when top two region scores are very close.
-     */
     private double xVariance(List<Double> xs) {
         if (xs.isEmpty()) return Double.MAX_VALUE;
         double mean = 0;
@@ -474,8 +405,7 @@ public class Vision2 {
         return var / xs.size();
     }
 
-    // ── Public API ────────────────────────────────────────────────────────────
-
+    // ── Public API ───────
     /**
      * 0=LEFT  1=CENTER  2=RIGHT  -1=not yet committed
      */
@@ -483,51 +413,34 @@ public class Vision2 {
         return region;
     }
 
-    /**
-     * Raw integer ball count in region r (telemetry)
-     */
     public int getRegionCount(int r) {
         return regionCount[r];
     }
 
-    /**
-     * Final weighted score for region r (after all 5 layers + cross-channel)
-     */
+
     public double getRegionScore(int r) {
         return regionScore[r];
     }
 
-    /**
-     * Purple-only score before cross-channel bonus (tuning)
-     */
     public double getPurpleScore(int r) {
         return purpleScore[r];
     }
 
-    /**
-     * Green-only score before cross-channel bonus (tuning)
-     */
     public double getGreenScore(int r) {
         return greenScore[r];
     }
 
-    /**
-     * Whether cross-channel bonus was applied to region r this frame
-     */
     public boolean isCrossChannelApplied(int r) {
         return debugCrossChannelApplied[r];
     }
 
-    /**
-     * Frames the current pending region has been continuously winning
-     */
+
     public int getConfidenceStreak() {
         return pendingStreak;
     }
 
     private boolean autoMode = false;
 
-    // Add this method
     public void setAutoMode(boolean autoMode) {
         this.autoMode = autoMode;
     }

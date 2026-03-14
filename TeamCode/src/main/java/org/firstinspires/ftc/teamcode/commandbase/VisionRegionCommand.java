@@ -29,7 +29,6 @@ public class VisionRegionCommand extends CommandBase {
     }
     @Override
     public boolean isFinished() {
-        // Commit if region found, OR force-exit after timeout (default to CENTER)
         if (region != -1) return true;
         if (updateCount >= MAX_UPDATES) {
             region = 1; // default CENTER if vision never commits

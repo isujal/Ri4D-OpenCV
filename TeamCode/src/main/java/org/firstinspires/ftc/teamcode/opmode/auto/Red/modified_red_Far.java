@@ -86,10 +86,10 @@ public class modified_red_Far extends LinearOpMode {
                 detectCommand,
 
                 new ConditionalCommand(
-                        new KPathCommand2(follower,farPath.RIGHT),
+                        new KPathCommand2(follower,farPath.LEFT),
                         new ConditionalCommand(
                                 new KPathCommand2(follower, farPath.CENTRE),
-                                new KPathCommand2(follower, farPath.LEFT),
+                                new KPathCommand2(follower, farPath.RIGHT),
                                 () -> detectCommand.getRegion() == 1
                         ),
                         () -> detectCommand.getRegion() == 0

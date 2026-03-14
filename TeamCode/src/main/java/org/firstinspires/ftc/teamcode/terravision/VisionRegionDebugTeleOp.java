@@ -18,9 +18,6 @@ public class VisionRegionDebugTeleOp extends OpMode {
     Vision2 vision;
     VisionRegionCommand visionCommand;
 
-
-
-
     @Override
     public void init() {
 
@@ -32,9 +29,6 @@ public class VisionRegionDebugTeleOp extends OpMode {
         CommandScheduler.getInstance().schedule(visionCommand);
     }
 
-
-
-
     @Override
     public void loop() {
 
@@ -42,11 +36,6 @@ public class VisionRegionDebugTeleOp extends OpMode {
         CommandScheduler.getInstance().schedule(visionCommand);
 
         int region = visionCommand.getRegion();
-
-
-
-
-
 
         visionCommand.execute();
         vision.update();
