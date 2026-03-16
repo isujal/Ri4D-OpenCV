@@ -221,6 +221,7 @@ public class Vision2 {
     private static final double PROXIMITY_MIN = 0.25; //0.5
     private static final double PROXIMITY_MAX = 1.3; //2.0
     private static final double CROSS_CHANNEL_BOOST = 1.3;
+
     private static final double SCORE_TIE_THRESHOLD = 0.25; //0.15
     private static final int CONFIRM_FRAMES = 5; //3
 
